@@ -3,8 +3,21 @@ import re
 allWords = list()
 verses = list()
 
+def clean():
+    #ensures each verse begins on its one line, separates each verse with newline if not already done in text
+    with open("kingjames.txt", 'r') as bible, open('cleanedBible.txt', 'w') as cleaned:
+        for line in bible:
+                lineBreaks = False
+                for i in range(5, len(line)):
+                    if line[i].isnumeric():
+                        cleaned.write(line[:i] + "\n" + "\n" + line[i:])
+                        lineBreaks = True
+                        break
+                if not lineBreaks:
+                    cleaned.write(line)
+
 def parseJames():
-    with open("kingjames.txt", 'r') as bible, open('parsed.txt', 'w') as parsed:
+    with open("cleanedBible.txt", 'r') as bible, open('parsed.txt', 'w') as parsed:
         for line in bible:
             getWords(line)
             parsed.write(line)
@@ -19,7 +32,7 @@ def getWords(line):
         if words[i].isalpha():
             allWords.append(words[i])
 
-            #check for chars like dashes, apostraphes, etc. (wouldn't otherwise evaluate to true with isalpha)
+            #need to check for chars like dashes, apostraphes, etc. (wouldn't otherwise evaluate to true with isalpha)
 
 def uniqueWords():
     print(len(set(allWords)))
@@ -27,7 +40,8 @@ def uniqueWords():
 def numWords():
     print(len(allWords))
 
+clean()
 parseJames()
-for verse in verses:
-    print(verse)
+
+
 
