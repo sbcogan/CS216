@@ -23,7 +23,6 @@ def hw9():
     for line in mapping:
         if line[1] >= 1:
             line[1] = 0
-
 hw9()
 for line in mapping:
     print(str(line[0]) + ' ' + str(line[1]))
