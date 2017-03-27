@@ -20,7 +20,7 @@ def parseJames():
     with open("cleanedBible.txt", 'r') as bible, open('parsed.txt', 'w') as parsed:
         for line in bible:
             getWords(line)
-            parsed.write(line)
+            parsed.write(line + "\n")
 
 def getWords(line):
     words = line.split()
@@ -39,9 +39,26 @@ def uniqueWords():
 def numWords():
     print(len(allWords))
 
+def toCSV():
+    with open("parsed.txt", 'r') as bible, open('kingjames.csv', 'w') as csv:
+        csv.write("Book, Chapter, Verse Number, Verse Text\n") #header for csv
+        book = ""
+        for line in bible:
+            if len(line) > 0 and not line[0].isnumeric():
+                if line[0] != "" and line[0] != "\n" and line[0] != " ":
+                    book = line
+                    print(book)
+                continue
+            line = line.replace(",", "")
+            words = line.split()
+            nums = words[0].split(":")
+            csv.write(book + "," + nums[0] + "," + nums[1] + "," + line[len(words[0]) + 1:])
+
 clean()
 parseJames()
-print(sorted(set(allWords)))
+toCSV()
+#print(sorted(set(allWords)))
 
-
+#need to ignore line breaks in the original and only add them in at end of verse
+#fixing this I think will help with the bible csv column issue too
 
