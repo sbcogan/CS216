@@ -11,9 +11,8 @@ def clean():
                 if re.match("^[0-9]*$",line[0]):
                     cleaned.write("\n")
                 line = line.strip("\n")
-                for i in range(6, len(line)):
-                    if line[i].isnumeric() or re.match("^[0-9]*$",line[i]) or line[i] == "6": #sorry this is hardcoded, randomly one 6 wasnt making this conditional true idek
-                        print(line[i] + " " + line)
+                for i in range(6, len(line) - 1):
+                    if (line[i].isnumeric() or re.match("^[0-9]*$",line[i]) or line[i] == "6") and(line[i+1] == ":" or re.match("^[0-9]*$",line[i+1])): #sorry this is hardcoded, randomly one 6 wasnt making this conditional true idek     
                         cleaned.write(line[:i] + "\n" + "\n" + line[i:] + " ")
                         lineBreaks = True
                         break
@@ -51,15 +50,17 @@ def toCSV():
         book = ""
         for line in bible:
             if line[:4] == "The ":
-                book = line
+                book = line[:len(line) -1].strip()
                 continue
             if line.find(":") > -1:
                 line = line.replace(",", "")
                 words = line.split()
                 nums = words[0].split(":")
-                #print(line)
+                print(line)
                 csv.write(book + "," + nums[0] + "," + nums[1] + "," + line[len(words[0]) + 1:])
                 
+#updates: yay!! csv file looks damn good
+
 
 clean()
 parseJames()
@@ -68,3 +69,12 @@ toCSV()
 
 #fixed the newline problem!
 #fixing this I think will help with the bible csv column issue too
+
+'''
+def test():
+    line ="6:51 Bukki his son Uzzi his son Zerahiah his son 6:52 Meraioth h"
+    for i in range(6, len(line) - 1):
+        if line[i].isnumeric() or re.match("^[0-9]*$",line[i]) or line[i] == "6" or line[i+1] == ":": 
+            print(line[i])
+test()
+'''
