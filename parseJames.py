@@ -49,7 +49,7 @@ def toCSV():
         csv.write("Book, Chapter, Verse Number, Verse Text\n") #header for csv
         book = ""
         for line in bible:
-            if line[:4] == "The ":
+            if line[:4] == "The " and not line[4].islower():
                 book = line[:len(line) -1].strip()
                 continue
             if line.find(":") > -1:
@@ -78,3 +78,4 @@ def test():
             print(line[i])
 test()
 '''
+
