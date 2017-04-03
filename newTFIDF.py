@@ -1,6 +1,6 @@
-#mostly playing around with the gensim library, idk how much of this will be useful
-
 import logging
+import re
+from operator import itemgetter
 from gensim import corpora, models, similarities
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -9,7 +9,7 @@ def tutorial():
     "A survey of user opinion of machine system"]
 
     stoplist = set('for a of the and to in'.split())
-    texts = [[word for word in document.lower().split() if word not in stoplist] for document in documents]
+    texts = [[word.strip(",:;.?!") for word in document.lower().split() if word not in stoplist] for document in documents]
 
     ''' 
     #i dont care to remove the words that only occur once
@@ -69,7 +69,6 @@ def calcByBook():
         for line in csv:
             verse = line.split(",")[3]
             if  verse.strip().startswith("Verse Text"): #hard coded, ignoring header line
-                print("first line")
                 continue
             if  not line.startswith(curBook):
                 counter += 1
@@ -82,16 +81,24 @@ def calcByBook():
     calcScores(books)
 
 
+
 def calcScores(books):
-    texts = [[word for word in document.lower().split()] for document in books]
+    texts = [[word.strip(",:;.?!") for word in document.lower().split()] for document in books]
     dictionary = corpora.Dictionary(texts)
     print(dictionary)
     corpus = [dictionary.doc2bow(text) for text in texts]
     tfidf = models.TfidfModel(corpus)
+    tfidfList = list()
     for each in corpus:
-        print(tfidf[each])
+        tfidfList.append(tfidf[each])
+    sortScore(tfidfList, dictionary)
 
-    #action items: sort by SECOND element in tuple (highest TFIDF score listed first)
-    #then convert back from id to token
-    #remember to go back and strip of extraneous chars like :
+def sortScore(tfidfList, dict):
+    for i in range(len(tfidfList)):
+        local10 = list()
+        top10 = sorted(tfidfList[i], key=itemgetter(1), reverse=True)[:10]
+        #print(*top10)
+        for word in top10:
+            local10.append(dict[word[0]])
+
 calcByBook();
