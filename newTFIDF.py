@@ -92,6 +92,7 @@ def calcScores(books):
     for each in corpus:
         tfidfList.append(tfidf[each])
     sortScore(tfidfList, dictionary)
+    calcLSI(tfidfList, dictionary)
 
 def sortScore(tfidfList, dict):
     for i in range(len(tfidfList)):
@@ -100,5 +101,12 @@ def sortScore(tfidfList, dict):
         #print(*top10)
         for word in top10:
             local10.append(dict[word[0]])
+
+def calcLSI(tfidfList, dictionary):
+    topics = 4 #this is arbitrary we should play around with this
+    lsi = models.LsiModel(tfidfList, id2word=dictionary, num_topics = topics)
+    corpus_lsi = lsi[tfidfList]
+    lsi.print_topics(topics)
+
 
 calcByBook();
