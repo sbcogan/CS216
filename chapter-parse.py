@@ -49,22 +49,18 @@ def toTSV():
         tsv.write("Book\t Chapter\t Verse Number\t Verse Text\n") #header for csv
         book = ""
         for lno, line in enumerate(bible):
-            if lno < 29:
-                continue
+            #if lno < 29:
+                #continue
             if 'End of the Project Gutenberg EBook of The King James Bible' in line:
                 break
             if line[:4] == "The " and not line[4].islower():
                 book = line[:len(line) -1].strip()
                 continue
             if line.find(":") > -1:
-                print line
                 words = line.split()
-                print words
                 nums = words[0].split(":")
-                print nums
                 tsv.write(book + "\t" + nums[0] + "\t" + nums[1] + "\t" + line[len(words[0]) + 1:])
 
-#updates: yay!! csv file looks damn good
 
 
 clean()
