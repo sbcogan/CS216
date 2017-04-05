@@ -48,15 +48,25 @@ def toCSV():
     with open("parsed.txt", 'r') as bible, open('kingjames.csv', 'w') as csv:
         csv.write("Book, Chapter, Verse Number, Verse Text\n") #header for csv
         book = ""
+        someBookTitles = ["Hosea", "Ezra", "Joel", "Amos", "Obadiah", "Jonah", \
+        "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"]
         for line in bible:
             if line[:4] == "The " and not line[4].islower():
                 book = line[:len(line) -1].strip()
+                continue
+            breakcondition = False
+            for title in someBookTitles:
+                if line.startswith(title):
+                    book = line.strip("\n")
+                    breakcondition = True
+                    break
+            if breakcondition:
                 continue
             if line.find(":") > -1:
                 line = line.replace(",", "")
                 words = line.split()
                 nums = words[0].split(":")
-                print(line)
+                #print(line)
                 csv.write(book + "," + nums[0] + "," + nums[1] + "," + line[len(words[0]) + 1:])
                 
 #updates: yay!! csv file looks damn good
