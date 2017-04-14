@@ -1,91 +1,112 @@
+import logging
 import re
+from operator import itemgetter
+from gensim import corpora, models, similarities
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-allWords = list()
-verses = list()
+corpus_lsi = []
+books = list() #each element in list is full text of a book
+bookNames = list()
+testamentText = ["", ""] # each element in list is full text of a testament
 
-def clean():
-    #ensures each verse begins on its one line, separates each verse with newline if not already done in text
-    with open("kingjames.txt", 'r') as bible, open('cleanedBible.txt', 'w') as cleaned:
-        for line in bible:
-                lineBreaks = False
-                if re.match("^[0-9]*$",line[0]):
-                    cleaned.write("\n")
-                line = line.strip("\n")
-                for i in range(6, len(line) - 1):
-                    if (line[i].isnumeric() or re.match("^[0-9]*$",line[i]) or line[i] == "6") and(line[i+1] == ":" or re.match("^[0-9]*$",line[i+1])): #sorry this is hardcoded, randomly one 6 wasnt making this conditional true idek     
-                        cleaned.write(line[:i] + "\n" + "\n" + line[i:] + " ")
-                        lineBreaks = True
-                        break
-                if not lineBreaks and len(line) > 1:
-                    cleaned.write(line + " ")
-
-
-def parseJames():
-    with open("cleanedBible.txt", 'r') as bible, open('parsed.txt', 'w') as parsed:
-        for line in bible:
-            getWords(line)
-            parsed.write(line)
-
-
-def getWords(line):
-    words = line.split()
-    if len(words) > 0:
-        if re.match("^[0-9:]*$",words[0]):
-            verse = words[0]
-            verses.append(verse)
-        for i in range(1, len(words)):
-            allWords.append(words[i].strip(",:;.?!"))
-
-            #strips of some chars -- how to deal w apostrophes still not decided
-
-def uniqueWords():
-    print(len(set(allWords)))
-
-def numWords():
-    print(len(allWords))
-
-def toCSV():
-    with open("parsed.txt", 'r') as bible, open('kingjames.csv', 'w') as csv:
-        csv.write("Book, Chapter, Verse Number, Verse Text\n") #header for csv
-        book = ""
-        someBookTitles = ["Hosea", "Ezra", "Joel", "Amos", "Obadiah", "Jonah", \
-        "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"]
-        for line in bible:
-            if line[:4] == "The " and not line[4].islower():
-                book = line[:len(line) -1].strip()
+def calcByBook():
+    curBook = "x"
+    with open('kingjames.csv', 'r') as csv:
+        counter = -1
+        for line in csv:
+            verse = line.split(",")[3]
+            if  verse.strip().startswith("Verse Text"): #hard coded, ignoring header line
                 continue
-            breakcondition = False
-            for title in someBookTitles:
-                if line.startswith(title):
-                    book = line.strip("\n")
-                    breakcondition = True
-                    break
-            if breakcondition:
-                continue
-            if line.find(":") > -1:
-                line = line.replace(",", "")
-                words = line.split()
-                nums = words[0].split(":")
-                #print(line)
-                csv.write(book + "," + nums[0] + "," + nums[1] + "," + line[len(words[0]) + 1:])
-                
-#updates: yay!! csv file looks damn good
+            if  not line.startswith(curBook):
+                counter += 1
+                books.append("")
+                curBook = line.split(",")[0]
+                bookNames.append(curBook)
+            books[counter] += " " + verse
+    calcBookScores(books)
+    calcTestamentScoresSort()
+
+def bookToTestament():
+    oldT = True
+    for i in range(len(books)):
+        if bookNames[i].startswith("The Gospel"):
+            oldT = False
+        if oldT:
+            testamentText[0] += books[i] + " "
+        else:
+            testamentText[1] += books[i] + " "
+
+def calcTestamentScoresSort():
+    bookToTestament()
+    texts = [[word.strip(",:;.?!") for word in document.lower().split()] for document in testamentText]
+    dictionary = corpora.Dictionary(texts)
+    corpus = [dictionary.doc2bow(text) for text in texts]
+    tfidf = models.TfidfModel(corpus)
+    tfidfTest= list()
+    testNames = ["Old Testament", "New Testament"]
+    for each in corpus:
+        tfidfTest.append(tfidf[each])
+    with open ("salientByTestament.txt", 'w') as out:
+        out.write("The top 15 salient words in each testament of the bible\n")
+        for i in range(len(tfidfTest)):
+            top15 = sorted(tfidfTest[i], key=itemgetter(1), reverse=True)[:15]
+            out.write(testNames[i] + " - ")
+            for word in top15:
+                out.write(dictionary[word[0]] + " ")
+            out.write("\n")
 
 
-clean()
-parseJames()
-toCSV()
-#print(sorted(set(allWords)))
+def calcBookScores(books):
+    texts = [[word.strip(",:;.?!") for word in document.lower().split()] for document in books]
+    dictionary = corpora.Dictionary(texts)
+    print(dictionary)
+    corpus = [dictionary.doc2bow(text) for text in texts]
+    tfidf = models.TfidfModel(corpus)
+    tfidfList = list()
+    for each in corpus:
+        tfidfList.append(tfidf[each])
+    salientByBook(tfidfList, dictionary)
+    #calcLSI(tfidfList, dictionary)
+    #calcLSA(corpus, dictionary)
 
-#fixed the newline problem!
-#fixing this I think will help with the bible csv column issue too
 
-'''
-def test():
-    line ="6:51 Bukki his son Uzzi his son Zerahiah his son 6:52 Meraioth h"
-    for i in range(6, len(line) - 1):
-        if line[i].isnumeric() or re.match("^[0-9]*$",line[i]) or line[i] == "6" or line[i+1] == ":": 
-            print(line[i])
-test()
-'''
+def sortScore(tfidfList, dict):
+    for i in range(len(tfidfList)):
+        local10 = list()
+        top10 = sorted(tfidfList[i], key=itemgetter(1), reverse=True)[:10]
+        #print(*top10)
+        print(bookNames[i])
+        for word in top10:
+            local10.append(dict[word[0]])
+            print(dict[word[0]])
 
+def salientByBook(tfidfList, dict): #basically the same as sortScore() but outputs to a file instead of printing
+    with open ("salientByBook.txt", 'w') as out:
+        out.write("The top 10 salient words in each book of the bible\n")
+        for i in range(len(tfidfList)):
+            local10 = list()
+            top10 = sorted(tfidfList[i], key=itemgetter(1), reverse=True)[:10]
+            #print(*top10)
+            out.write(bookNames[i] + " - ")
+            for word in top10:
+                local10.append(dict[word[0]] )
+                out.write(dict[word[0]] + " ")
+            out.write("\n")
+
+
+def calcLSI(tfidfList, dictionary):
+    global corpus_lsi
+    topics = 4 #this is arbitrary we should play around with this
+    lsi = models.LsiModel(tfidfList, id2word=dictionary, num_topics = topics)
+    corpus_lsi = lsi[tfidfList]
+    lsi.print_topics(topics)
+    #after this is new stuff to evaluate topics
+
+def calcLSA(corpus, dictionary):
+    model = models.LdaModel(corpus, id2word = dictionary, num_topics = 10)
+
+
+
+if __name__ == "__main__":
+    calcByBook()
+    bookToTestament()
