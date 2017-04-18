@@ -1,0 +1,23 @@
+#simple NounParse for anyone who wants to use this for any particular file. 
+#uses the NLTK package
+
+from nltk.tag import pos_tag
+
+def parse(file):
+        propernouns = [] #this basically just looks for capitals....
+        regularnouns = []#this may do a better job
+        with open(file, 'r') as csv:
+                for line in csv:
+                        tagged_sent = pos_tag(line.split())
+                        for tup in tagged_sent:
+                                if tup[1] == 'NNP':
+                                        propernouns.append(tup[0])
+                                if tup[1] == 'NN':
+                                        regularnouns.append(tup[0])
+        print propernouns
+        print regularnouns
+
+parse('kingjames.csv')
+
+
+
