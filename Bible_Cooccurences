@@ -10,7 +10,7 @@ with open("kingjames.tsv") as tsvfile, open("kingjames_wordpairs.csv",'wb') as f
         text =  pos_tag(line[3].split())
         for tup in text:
                 if tup[1] == 'NNP':
-                        propernouns.append(tup[0].strip(",."))
+                        propernouns.append(tup[0].strip(",;.:)?'"))
         unique = set(propernouns)
         if len(list(unique)) > 1:
                 biblebychapter.append((line[0],line[1],line[2],list(unique)))
@@ -33,3 +33,4 @@ with open("kingjames.tsv") as tsvfile, open("kingjames_wordpairs.csv",'wb') as f
 
 for line in wordpairs:
         print(line)
+
