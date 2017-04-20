@@ -1,0 +1,46 @@
+#this generates nodes for the socialnetwork graph
+
+import csv
+from nltk.tag import pos_tag
+#creates word pairs csv by cooccurence by verse
+with open("kingjames.tsv") as tsvfile, open("nodes.csv",'wb') as f:
+    biblebychapter = list()
+    for line in tsvfile:
+        line = line.strip('\n')
+        line = line.split('\t')
+        propernouns = list()
+        text =  pos_tag(line[3].split())
+        for tup in text:
+                if tup[1] == 'NNP':
+                        propernouns.append(tup[0].strip(",;.:)?'"))
+        unique = set(propernouns)
+        if len(list(unique)) > 1:
+                biblebychapter.append((line[0],line[1],line[2],list(unique)))
+
+    wordpairs = list()
+    uniquewords = set()
+    for verse in biblebychapter:
+        uniquepairs = set()
+
+        for word1 in verse[3]:
+                uniquewords.add(word1)
+                for word2 in verse[3]:
+                        uniquewords.add(word2)
+                        if word1 != word2:
+                                plist =sorted([word1, word2])
+                                pair = tuple(plist)
+                                uniquepairs.add(pair)
+        versenum = verse[0] + " " + verse[1] + ":" + verse[2]
+        for pair in uniquepairs:
+                wordpairs.append([pair[0],pair[1],versenum])
+    writer = csv.writer(f)
+    wordlist = list(uniquewords)
+    listoflists = list()
+    for word in wordlist:
+        listoflists.append([word])
+    for word in listoflists:
+        writer.writerows([word])
+
+
+print(listoflists)
+
