@@ -1,0 +1,49 @@
+> library(igraph)
+
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union
+
+> net <- graph.data.frame(links, nodes, directed=F)
+Error in graph.data.frame(links, nodes, directed = F) : 
+  Duplicate vertex names
+> nodes <- read.csv("realtestnodes.csv", header=T, as.is=T)
+> net <- graph.data.frame(links, nodes, directed=F)
+> net
+IGRAPH UNW- 60 231 -- 
++ attr: name (v/c), Book..Chapter..Verse.Number (e/c), weight (e/n)
++ edges (vertex names):
+ [1] Adam  --Abel   Cain  --Abel   Cain  --Abel   Cain  --Abel   Cain  --Abel   God   --Abel  
+ [7] LORD  --Abel   LORD  --Abel   Abel  --Seth   Abel  --Where  Adah  --Hear   Adah  --Jabal 
+[13] Lamech--Adah   Lamech--Adah   Adah  --Zillah Adah  --Zillah Adam  --Cain   Adam  --Cain  
+[19] Adam  --Eve    Adam  --Eve    God   --Adam   God   --Adam   God   --Adam   God   --Adam  
+[25] God   --Adam   God   --Adam   God   --Adam   Adam  --LORD   Adam  --LORD   Adam  --LORD  
+[31] Adam  --LORD   Adam  --LORD   Adam  --LORD   Adam  --Man    Adam  --Seth   Adam  --Seth  
+[37] Adam  --Seth   Adam  --Thou   Adam  --Unto   Adam  --Where  Adam  --Woman  And   --I     
++ ... omitted several edges
+> net <- simplify(net, remove.multiple = F, remove.loops = T,edge.attr.comb=list(Weight="sum","ignore")) 
+> plot(net, edge.arrow.size=.4)
+> deg <- degree(net, mode="all")
+> V(net)$size <- deg*3
+> plot(net, edge.arrow.size=.2, edge.color="orange",
++      vertex.color="orange", vertex.frame.color="#ffffff",
++      vertex.label=V(net)$size, vertex.label.color="black") 
+> plot(net, edge.arrow.size=.2, edge.color="orange",
++      vertex.color="orange", vertex.frame.color="#ffffff", vertex.label.color="black") 
+> deg <- degree(net, mode="all")
+> V(net)$size <- deg
+> plot(net, edge.arrow.size=.2, edge.color="orange",
++      vertex.color="orange", vertex.frame.color="#ffffff", vertex.label.color="black") 
+> plot(net, edge.color="orange", vertex.color="gray50") 
+> plot(net, edge.color="orange", vertex.color="gray50") 
+> l <- layout.sphere(net.bg)
+Error in make_call(f, ..., .args) : object 'net.bg' not found
+> l <- layout.sphere(net)
+> plot(net, layout=l)
+> plot(net, layout=l, edge.color="orange", vertex.color="gray50", vertex.label.color="black")
