@@ -1,22 +1,27 @@
 import csv
 from nltk.tag import pos_tag
 #creates word pairs csv by cooccurence by verse
-with open("kingjames.tsv") as tsvfile, open("kingjames_wordpairs.csv",'wb') as f:
-    biblebychapter = list()
+with open("kingjames.tsv") as tsvfile, open("kjb_cleanedpairs.csv",'wb') as f:
+    biblebyverse = list()
+    extraneous = ['and', 'come', 'let', 'be', 'for', 'go', 'say', 'speak', 'thou', 'you', 'shall', 'a', 'of','amen', 'o','kings','saying']
     for line in tsvfile:
         line = line.strip('\n')
         line = line.split('\t')
         propernouns = list()
         text =  pos_tag(line[3].split())
         for tup in text:
-                if tup[1] == 'NNP':
-                        propernouns.append(tup[0].strip(",;.:)?'"))
+                if tup[1] == 'NNP' and tup[0].lower() not in extraneous:
+                                if tup[0].lower() == "lord":
+                                        propernouns.append("God")
+                                else:
+                                        propernouns.append(tup[0].replace("'s", '').strip(",;.:)?'"))
+                                        continue
         unique = set(propernouns)
         if len(list(unique)) > 1:
-                biblebychapter.append((line[0],line[1],line[2],list(unique)))
+                biblebyverse.append((line[0],line[1],line[2],list(unique)))
 
     wordpairs = list()
-    for verse in biblebychapter:
+    for verse in biblebyverse:
         uniquepairs = set()
         for word1 in verse[3]:
                 for word2 in verse[3]:
@@ -26,7 +31,7 @@ with open("kingjames.tsv") as tsvfile, open("kingjames_wordpairs.csv",'wb') as f
                                 uniquepairs.add(pair)
         versenum = verse[0] + " " + verse[1] + ":" + verse[2]
         for pair in uniquepairs:
-                wordpairs.append([pair[0],pair[1],versenum])
+                wordpairs.append([pair[0],pair[1],1,versenum])
 
     writer = csv.writer(f, delimiter=',', lineterminator='\n')
     writer.writerows(wordpairs)
