@@ -30,21 +30,32 @@ with open("SermonDatasetCSV.csv") as csvfile:
 #disable here to run full program
 ############################################################################################################################################################################################
 ############################################################################################################################################################################################
-		if counter == 0:
-			continue
-		if counter >= 3:
-			break
+		# if counter == 0:
+		# 	continue
+		# if counter >= 3:
+		# 	break
 ############################################################################################################################################################################################
 ############################################################################################################################################################################################
+#and enable here
+		if counter%100 == 0:
+			print counter
 
-		row = [0,"",0,"",0,0,0,0,0,0,0,0,0,0]
+		row = [0,"","","",0,0,0,0,0,0,0,0,0,0]
 		row[0] = counter
-		split=line[0].split(" ")
-		items = len(split)
-		for i in range(items-1):
-			row[1] = row[1] + str(split[i]) + " "
-		row[1]=row[1].strip()
-		row[2] = split[items-1][:split[items-1].find(":")]
+		# print line[0]
+		# print len(line)
+		different_references = line[0].split(",")
+		for j in range(len(different_references)):
+			split=different_references[j].split(" ")
+			items = len(split)
+			for i in range(items-1):
+				row[1] = row[1] + str(split[i]) + " "
+			row[1]=row[1].strip()
+			row[2] = row[2] + split[items-1][:split[items-1].find(":")]
+			row[2]=row[2].strip()
+			if j != len(different_references)-1:
+				row[1]+= ", "
+				row[2]+=", "
 		row[3] = line[2]
 		chapter_text = line[3]
 		asjson = json.dumps(tone_analyzer.tone(chapter_text,sentences='false'), indent=2)
@@ -64,14 +75,14 @@ with open("SermonDatasetCSV.csv") as csvfile:
 		big_ass_array_of_values.append(row)
 		counter += 1
 
-with open('sentiment_data_sermons.csv','w') as data:
+with open('sentiment_data_sermons.tsv','w') as data:
 	header = ['id','book','chapter','denomination','anger','disgust','fear','joy','sadness','openness','conscientiousness','extraversion','agreeableness',\
 			'emotional_range']
-	data.write(','.join(header) + '\n')
+	data.write('\t'.join(header) + '\n')
 	for row in big_ass_array_of_values:
 		for num in range(len(row)):
 			value = row[num]
 			row[num] = str(value)
-		data.write(','.join(row) + '\n')
+		data.write('\t'.join(row) + '\n')
 
 print big_ass_array_of_values
