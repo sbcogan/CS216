@@ -1,4 +1,4 @@
-with open("ASV2.tsv") as tsvfile, open("ASV2_by_book.tsv",'w') as wfile:
+with open("ASV_by_chapter.tsv") as tsvfile, open("ASV2_by_book.tsv",'w') as wfile:
     biblebybook = list()
     newrow = [""]*2
     counter = 0
