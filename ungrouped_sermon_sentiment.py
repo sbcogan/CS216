@@ -32,8 +32,8 @@ with open("SermonDatasetCSV.csv") as csvfile:
 ############################################################################################################################################################################################
 		# if counter == 0:
 		# 	continue
-		# if counter >= 6:
-		# 	break
+		if counter >= 40:
+			break
 ############################################################################################################################################################################################
 ############################################################################################################################################################################################
 #and enable here
@@ -80,13 +80,33 @@ with open("SermonDatasetCSV.csv") as csvfile:
 
 		row[14] = num
 
+		if len(row[1].split(", ")) >1:
+			for i in range(len(row[1].split(", "))):
+				copy_row = [0,"","","",0,0,0,0,0,0,0,0,0,0,0]
+				copy_row[0]=row[0]+i
+				copy_row[1]=row[1].split(", ")[i].strip()
+				copy_row[2]=row[2].split(", ")[i].strip()
+				copy_row[3]=row[3]
+				copy_row[4]=row[4]
+				copy_row[5]=row[5]
+				copy_row[6]=row[6]
+				copy_row[7]=row[7]
+				copy_row[8]=row[8]
+				copy_row[9]=row[9]
+				copy_row[10]=row[10]
+				copy_row[11]=row[11]
+				copy_row[12]=row[12]
+				copy_row[13]=row[13]
+				copy_row[14]=row[14]
+				big_ass_array_of_values.append(copy_row)
+				counter+=1
+		else:
+			big_ass_array_of_values.append(row)
+			counter += 1
 
-		big_ass_array_of_values.append(row)
-		counter += 1
-
-with open('sentiment_data_sermons.tsv','w') as data:
+with open('ungrouped_sentiment_data_sermons.tsv','w') as data:
 	header = ['id','book','chapter','denomination','anger','disgust','fear','joy','sadness','openness','conscientiousness','extraversion','agreeableness',\
-			'emotional_range','wc']
+			'emotional_range']
 	data.write('\t'.join(header) + '\n')
 	for row in big_ass_array_of_values:
 		for num in range(len(row)):
