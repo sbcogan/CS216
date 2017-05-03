@@ -15,28 +15,20 @@ links2 <- links1[-7,]
 links <- links2
 links10 <- subset(links, links$weight > 9)
 links20 <- subset(links, links$weight >19)
-links30 <- subset(links, links$weight>29)
 link2node10 <- links10
 link2node10$weight <- NULL
 link2node20 <- links20 
 link2node20$weight <- NULL
-link2node30 <- links30
-link2node30$weight <- NULL
 node10 <- unique(stack(link2node10))
 node20 <- unique(stack(link2node20))
-node30 <- unique(stack(link2node30))
 colnames(node10)[1] <- "name"
 colnames(node20)[1] <- "name"
-colnames(node30)[1]<- "name"
 node10$ind <- NULL
 node20$ind <- NULL
-node30$ind <- NULL
 nodes10<- unique(node10)
 nodes20 <- unique(node20)
-nodes30 <- unique(node30)
 net10 <- graph.data.frame(links10, nodes10, directed=F)
 net20 <- graph.data.frame(links20, nodes20, directed=F)
-net30 <- graph.data.frame(links30, nodes30, directed=F)
 #lets just work on the simplifed (20+ connections show up) one first
 net20 <- simplify(net20, remove.multiple = F, remove.loops = T) 
 deg <- degree(net20, mode="all")
@@ -50,7 +42,7 @@ ecol[unlist(links20$to =="Jesus")] <- "yellow"
 ecol[unlist(links20$fom =="Jesus")] <- "yellow"
 plot(net20, edge.curved=.1, edge.color = ecol, vertex.frame.color= "white", layout = layout.random(net20), vertex.color=adjustcolor("gray50", alpha.f = .8), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
 plot(net20, edge.curved=.1, edge.color = ecol, vertex.frame.color= "white", layout = layout.sphere(net20), vertex.color=adjustcolor("gray50", alpha.f = .8), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
-plot(net20, edge.curved=.1, edge.color = ecol, vertex.shape = "none", vertex.size = .1, layout = layout.circle(net20), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
+plot(net20, edge.curved=.1, edge.color = ecol, vertex.shape = "none", layout = layout.circle(net20), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
 
 #now
 net10 <- simplify(net10, remove.multiple = F, remove.loops = T) 
@@ -62,7 +54,7 @@ ecol <- rep("gray80", ecount(net10))
 ecol[unlist(links10$from == "God")] <- "orange"
 ecol[unlist(links10$to == "God")] <- "orange"
 ecol[unlist(links10$to =="Jesus")] <- "yellow"
-ecol[unlist(links10$from =="Jesus")] <- "yellow"
+ecol[unlist(links10$fom =="Jesus")] <- "yellow"
 tcol <- rep(adjustcolor("black", alpha.f = .8), ecount(net10))
 tcol[unlist(deg <10)] <- adjustcolor("black", alpha.f = .5)
 tsize <- rep(.6, ecount(net10))
@@ -75,21 +67,4 @@ plot(net10, edge.curved=.1, edge.color = ecol, vertex.shape = "none", layout = l
 plot(net10, edge.curved=.1, edge.color = ecol, vertex.shape = "none", layout = layout_on_grid(net10), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
 tkid <- tkplot(net10)
 l <- tkplot.getcoords(tkid)
-plot(net10, edge.curved=.1, edge.color = ecol, vertex.frame.color= "white", layout = l, vertex.color=adjustcolor("gray50", alpha.f = .8), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
-
-
-net30 <- simplify(net30, remove.multiple = F, remove.loops = T) 
-deg <- degree(net30, mode="all")
-V(net30)$size <- deg*.25
-E(net30)$width <- E(net30)$weight/50
-E(net30)$edge.color <- "gray80"
-ecol <- rep("gray80", ecount(net30))
-ecol[unlist(links30$from == "God")] <- "orange"
-ecol[unlist(links30$to == "God")] <- "orange"
-ecol[unlist(links30$to =="Jesus")] <- "yellow"
-ecol[unlist(links30$from =="Jesus")] <- "yellow"
-plot(net30, edge.curved=.1, edge.color = ecol, vertex.frame.color= "white", layout = layout.random(net30), vertex.color=adjustcolor("gray50", alpha.f = .8), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
-plot(net30, edge.curved=.1, edge.color = ecol, vertex.frame.color= "white", layout = layout.sphere(net30), vertex.color=adjustcolor("gray50", alpha.f = .8), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
-plot(net30, edge.curved=.1, edge.color = ecol, vertex.shape = "none", vertex.size = .1, layout = layout.circle(net30), asp = 0, vertex.label.cex=.7, vertex.label.color=adjustcolor("black", alpha.f = .8))
-
-#now
+plot(net10, edge.curved=.1, edge.color = ecol, vertex.frame.color= "white", layout = l, vertex.color=adjustcolor("gray50", alpha.f = .8), asp = 0, vertex.label.cex=tsize, vertex.label.color=tcol)
